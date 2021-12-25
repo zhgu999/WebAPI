@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>web-api 帮助文档</title>
+</head>
+<body>
+    <a href="https://gitee.com/shangqingdong/web_api">开源地址</a>
+<ul>
+    <li> 基本查询
+        <ul>
+            <li>
+                <a href="../blocks/10/20">区块查询(指定区块高度区间,10,20)</a>
+            </li>
+            <li>
+                <a href="../block/00000000f4f768d9a676fe371c591965a011516b55c9bb0ed98b6d23e14cd715">单个区块查询(区块hash)</a>
+                <br/>
+                <a href="../block/100">单个区块查询(高度:100)</a>
+            </li>
+        
+            <li>
+                <a href="../blocktx/00000000f4f768d9a676fe371c591965a011516b55c9bb0ed98b6d23e14cd715">交易查询(指定区块的交易的查询)</a>
+            </li>
+            <li>
+                <a href="../tx/60a36a55f57ff64ef1f3cf041573b6c555cc5dae8f4b172d3c34c4b9c582a731">单个交易查询(指定交易的hash)</a>  
+            </li>
+        
+            <li>
+                <a href="../newblock/">最新20个区块查询</a>>
+            </li>
+            <li>
+                <a href="../newtx/">最新20个交易查询</a>
+            </li>
+        </ul>
+    </li>
+    <li>地址交易查询
+        <ul>
+            <li>
+                <a href="../txlist/1/1231kgws0rhjtfewv57jegfe5bp4dncax60szxk8f4y546jsfkap3t5ws/0/10">地址的进账交易(指定数据区间，不返回总数)</a>
+            </li>
+            <li>
+                <a href="../txlist/2/1231kgws0rhjtfewv57jegfe5bp4dncax60szxk8f4y546jsfkap3t5ws/0/10">地址的出账交易(指定数据区间，不返回总数)</a>
+            </li>
+            <li>
+                <a href="../txlist/3/1231kgws0rhjtfewv57jegfe5bp4dncax60szxk8f4y546jsfkap3t5ws/0/10">地址的进出账交易(指定数据区间，不返回总数)</a>
+            </li>
+    
+            <li>
+                <a href="../txlist/4/15qebvafv8ak10g7rdv5020e1pkbvsazy9aaj09yzrxwd3rj8ezghtq60/0/10">地址的投票交易(指定数据区间，不返回总数)</a>
+            </li>
+            <li>
+                <a href="../txlist/5/15qebvafv8ak10g7rdv5020e1pkbvsazy9aaj09yzrxwd3rj8ezghtq60/0/10">地址的赎回交易(指定数据区间，不返回总数)</a>
+            </li>
+            <li>
+                <a href="../txlist/6/15qebvafv8ak10g7rdv5020e1pkbvsazy9aaj09yzrxwd3rj8ezghtq60/0/10">地址的投票和赎回交易(指定数据区间，不返回总数)</a>
+            </li>
+            
+            <li>
+                <a href="../txlist/7/20m0f7zkhbd840hk34zwfeazr8cwkkskxhcdqpz0jw6rx2a160bb38wth/0/10">超级节点投票交易(指定数据区间，不返回总数)</a>
+            </li>
+    
+            <li>
+                <a href="../txlist/8/20m0f7zkhbd840hk34zwfeazr8cwkkskxhcdqpz0jw6rx2a160bb38wth/0/10">超级节点赎回交易(指定数据区间，不返回总数)</a>
+            </li>
+    
+            <li>
+                <a href="../txlist/9/20m0f7zkhbd840hk34zwfeazr8cwkkskxhcdqpz0jw6rx2a160bb38wth/0/10">超级节点投票和赎回交易(指定数据区间，不返回总数)</a>
+            </li>    
+        </ul>
+    </li>
+    <li> 其他方法
+        <ul>
+            <li>
+                <a href="../address/1j6x8vdkkbnxe8qwjggfan9c8m8zhmez7gm3pznsqxgch3eyrwxby8eda">地址信息查询(包括余额,锁定金额)</a>
+            </li>
+        
+            <li>
+                <a href="../blockchain">网络基本信息查询(发行量,抵押量)</a>
+            </li>
+            <li>
+                <a href="../sendtransaction/hex">广播交易</a>
+            </li>
+            <li>
+                <a href="https://gitee.com/shangqingdong/web_api/blob/master/test.py">创建交易(post方法，详见test.py)</a>
+            </li>
+            <li>
+                <a href="../getvotetemplateaddr/20m01802pgptaswc5b2dq09kmj10ns88bn69q0msrnz64mtypx4xm5sff/1j6x8vdkkbnxe8qwjggfan9c8m8zhmez7gm3pznsqxgch3eyrwxby8eda/0">创建投票模版</a>
+            </li>
+            <li>
+                <a href="../rankstat/0/10">持币大户查询(前10名)</a>
+            </li>
+        
+            <li> 
+                <a href="../listdelegate">超级节点投票查询</a>
+            </li>
+
+            <li> 
+                <a href="../makekeypair">生成秘钥</a>
+            </li>
+
+            <li> 
+                <a href="../getpubkeyaddress/99ba15e2da512f241658f8a74710b27d73f4d2c62cb8f29afbe1aacba96d84b0">得到地址</a>
+            </li>
+            
+        </ul>
+
+    </li>
+</ul>
+</body>
+</html>
