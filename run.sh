@@ -5,6 +5,6 @@
 while true
 do
     echo "--------------------------------------------------------------"
-    node index.js
+    node btca.js
     sleep 5
 done
