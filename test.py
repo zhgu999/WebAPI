@@ -4,7 +4,7 @@
 import requests
 import json
 
-url = "http://127.0.0.1:9906/createtransaction"
+#url = "http://127.0.0.1:9906/createtransaction"
 url = "http://159.138.123.135:9906/createtransaction"
 
 
