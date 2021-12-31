@@ -2,6 +2,25 @@ const utils = require('./utils.js');
 const bignum = require('bignum');
 const blake = require('blakejs');
 
+function LenHex(n) {
+	if (n < 0xFD) {
+		return Buffer.from([n]);
+	} else if (n <= 0xFFFF) {
+		const buf_n = Buffer.allocUnsafe(2);
+    	buf_n.writeUInt16LE(n);
+		return Buffer.from([0xfd,buf_n[0],buf_n[1]]);
+	} else if (n <= 0xFFFFFFFF) {
+		const buf_n = Buffer.allocUnsafe(4);
+    	buf_n.writeUInt32LE(n);
+		return Buffer.concat([new Uint8Array([0xfe]),buf_n]);
+	} else {
+		const buf_n = Buffer.allocUnsafe(8);
+    	buf_n.writeBigUInt64LE(BigInt(n));
+		return Buffer.concat([new Uint8Array([0xff]),buf_n]);
+	}
+}
+
+
 function GetTx(type,ts,lockuntil,anchor,vin,sendto,amount,txfee,data) {
     const nVersion = Buffer.allocUnsafe(2);
     nVersion.writeUInt16LE(1);
@@ -44,11 +63,14 @@ function GetTx(type,ts,lockuntil,anchor,vin,sendto,amount,txfee,data) {
     const nTxfee = Buffer.allocUnsafe(8);
     nTxfee.writeBigInt64LE(BigInt(txfee *  1000000));
 
-    const hex_data = Buffer.from(data,'hex');
+    const vchdata = Buffer.from(data,'hex');
 
-    const tx_data = Buffer.concat([nVersion,nType,nTimeStamp,nLockUntil,hashAnchor,vin_data,to,nAmount,nTxfee,hex_data]);
+    const vchdata_n = LenHex(vchdata.length);
+
+    const tx_data = Buffer.concat([nVersion,nType,nTimeStamp,nLockUntil,hashAnchor,vin_data,to,nAmount,nTxfee,vchdata_n, vchdata]);
 
     const sigh_hash = blake.blake2b(tx_data,null,32);
+    
     sigh_hash.reverse();
     return {"tx_hash" : Buffer.concat([sigh_hash]).toString('hex'),
             "tx_hex" : tx_data.toString('hex')};
