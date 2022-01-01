@@ -50,7 +50,7 @@ function GetTx(type,ts,lockuntil,anchor,vin,sendto,amount,txfee,data) {
         let txid = Buffer.from(vin[i].txid,'hex');
         txid.reverse();
         const vout = Buffer.allocUnsafe(1);
-        vout.writeUInt8(vin[i].vout);
+        vout.writeUInt8(vin[i].out);
         vin_data = Buffer.concat([vin_data,txid,vout]);
     }
     const to = utils.Addr2Hex(sendto);

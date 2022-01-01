@@ -31,7 +31,7 @@ transaction = {
         "vin" : [                                                                       # utxo数组，自己要花费的utxo
             {
                 "txid" : "61c9767e14cbdbee892eaabd02f0fbdd68038b059d766b7c32f8c94f848981d5",    # utxo 的hash(id)
-                "vout" : 1                                                                      # 是否找零，1表示找零，0表示表示转账
+                "out" : 1                                                                      # 是否找零，1表示找零，0表示表示转账
             }
         ],
         "sendto" : "20m02ft8tk86g2hc4r45ac1xp5emp1qwdyv60k2vx456mx434q6nkb78g",         # 接收本交易资金的地址
