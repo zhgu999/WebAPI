@@ -8,7 +8,7 @@ const lib = require('./lib.js')
 const app = express();
 const url = 'http://127.0.0.1:9904';
 const conn = mysql.createConnection({
-  host: '127.0.0.1',
+  host: '159.138.123.135',
   port: '3306',
   user: 'btca',
   password: '1234qwer',
@@ -327,3 +327,37 @@ let server = app.listen(1234, function() {
   let port = server.address().port;
   console.log('http://%s:%s', host, port);
 })
+// flybird000 start 
+
+
+
+
+app.get('/releationByUpper/:upper', function(req, res, next) {
+  let sql='select * from Relation where upper =?';
+  let params=[req.params.upper];
+  if(params !=''){
+    conn.query(sql,params,function(err,result){
+      if(err){
+        res.json({'error':err});
+        return;
+      }
+      let dataString =JSON.stringify(result);
+      res.send(JSON.parse(dataString));
+    });
+  }
+});
+
+app.get('/releationByLower/:lower', function(req, res, next) {
+  let sql='select * from Relation where lower =?';
+  let params=[req.params.lower];
+  if(params !=''){
+    conn.query(sql,params,function(err,result){
+      if(err){
+        res.json({'error':err});
+        return;
+      }
+      let dataString =JSON.stringify(result);
+      res.send(JSON.parse(dataString));
+    });
+  }
+});
