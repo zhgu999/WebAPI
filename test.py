@@ -9,7 +9,7 @@ import hashlib
 import struct
 
 url = "http://127.0.0.1:9906/createtransaction"
-url = "http://159.138.123.135:9906/createtransaction"
+#url = "http://159.138.123.135:9906/createtransaction"
 
 #Address = '1549pyzf8dhx7r4x40k5j80f12btkpqfprjp134bcgcrjn963nzsx57xb'
 #PubKey = 'f3afc3a42a31836c9111acc4f65d3bf512e10124cb04a4137c7a6ce87d6f1329'
