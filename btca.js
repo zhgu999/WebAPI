@@ -36,8 +36,34 @@ app.post('/createtransaction', function(req, res, next) {
   res.json(ret);
 });
 
+app.get('/releationByUpper/:upper', function(req, res, next) {
+  let sql = 'select * from Relation where upper =?';
+  let params = [req.params.upper];
+  conn.query(sql,params,function(err,result){
+    if(err){
+      res.json({'error':err});
+      return;
+    }
+    let dataString =JSON.stringify(result);
+    res.send(JSON.parse(dataString));
+  });
+});
+
+app.get('/releationByLower/:lower', function(req, res, next) {
+  let sql = 'select * from Relation where lower =?';
+  let params = [req.params.lower];
+  conn.query(sql,params,function(err,result){
+    if(err){
+      res.json({'error':err});
+      return;
+    }
+    let dataString =JSON.stringify(result);
+    res.send(JSON.parse(dataString));
+  });
+});
+
 let server = app.listen(9906, function() {
   let host = server.address().address;
   let port = server.address().port;
   console.log('http://%s:%s', host, port);
-})
+});
