@@ -67,3 +67,38 @@ let server = app.listen(9906, function() {
   let port = server.address().port;
   console.log('http://%s:%s', host, port);
 });
+
+
+app.get('/listunspent/:fork/:addr', function(req, res, next) {
+  request(
+    {
+      url: url,
+      method: 'POST',
+      json: true,
+      body:{'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'fork':req.params.frok,'address': req.params.addr,'max':0 }}
+    },
+    function(error, response, body) {
+      if (body.error) {
+        res.json(body.error);
+      } else {
+        res.json(body.result);    
+      }
+    });
+});
+
+app.get('/sendrawtransaction/:tx_hex', function(req, res, next) {
+  request(
+    {
+      url: url,
+      method: 'POST',
+      json: true,
+      body:{'id':3,'method':'sendrawtransaction','jsonrpc':'2.0','params':{'txdata': req.params.tx_hex}}
+    },
+    function(error, response, body) {
+      if (body.error) {
+        res.json(body.error);
+      } else {
+        res.json(body.result);     
+      }
+    });
+});
