@@ -8,8 +8,8 @@ from binascii import hexlify, unhexlify
 import hashlib
 import struct
 
-url = "http://127.0.0.1:9906/createtransaction"
-#url = "http://159.138.123.135:9906/createtransaction"
+#url = "http://127.0.0.1:9906/createtransaction"
+url = "http://159.138.123.135:9906/createtransaction"
 
 #Address = '1549pyzf8dhx7r4x40k5j80f12btkpqfprjp134bcgcrjn963nzsx57xb'
 #PubKey = 'f3afc3a42a31836c9111acc4f65d3bf512e10124cb04a4137c7a6ce87d6f1329'
@@ -45,10 +45,16 @@ serialization = "01000000037ac961000000009fd42c82d2493e5c9bacce1113d4d81d5b6419e
 
 response = requests.post(url,json=transaction)
 ret = json.loads(response.text)
+assert(ret["tx_hash"] == "3bcd04dbba53815476c49a6023021806116f6ffa3df4ec5549df08f2ba4df5b3")
+assert(ret["tx_hex"] == "01000000037ac961000000009fd42c82d2493e5c9bacce1113d4d81d5b6419ec2aa8bd24662537a10000000001d58189844fc9f8327c6b769d058b0368ddfbf002bdaa2e89eedbcb147e76c9610102050027e91a9a0d014584c10aa607b62ba960df8df6cc098b7d214d4e9064b9ab00e1f50500000000102700000000000000")
+
 # ret["tx_hex"] 交易的16进制字符串
 # ret["tx_hash"] 要签名的字符串
 sk = ed25519.SigningKey(unhexlify(genesis_privkey)[::-1])
 sign_data = sk.sign(unhexlify(ret["tx_hash"])[::-1])
+
+assert(hexlify(sign_data).decode() == "1fe5524404a73a5e6b93d5c45e9eccebfde5b49dd7fba11455c114981337f6e0ef169fe1b9378fc2a0b845f43de1a84ba6b6161ee82776a1d3903e738e5c9206")
+
 # 生成要广播的字符串
 obj = ret["tx_hex"] + hex(len(sign_data))[2:] + hexlify(sign_data).decode()
 assert(obj == serialization)
