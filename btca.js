@@ -6,8 +6,10 @@ const lib = require('./lib.js')
 
 const app = express();
 const url = 'http://127.0.0.1:9904';
+//const url = "http://159.138.123.135:9904"
 const conn = mysql.createConnection({
   host: '127.0.0.1',
+  //host: '159.138.123.135',
   port: '3306',
   user: 'btca',
   password: '1234qwer',
@@ -75,7 +77,7 @@ app.get('/listunspent/:fork/:addr', function(req, res, next) {
       url: url,
       method: 'POST',
       json: true,
-      body:{'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'fork':req.params.frok,'address': req.params.addr,'max':0 }}
+      body:{'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'fork':req.params.fork,'address': req.params.addr,'max':0 }}
     },
     function(error, response, body) {
       if (body.error) {
@@ -86,13 +88,30 @@ app.get('/listunspent/:fork/:addr', function(req, res, next) {
     });
 });
 
-app.get('/sendrawtransaction/:tx_hex', function(req, res, next) {
+app.get('/sendrawtransaction/:hex', function(req, res, next) {
   request(
     {
       url: url,
       method: 'POST',
       json: true,
-      body:{'id':3,'method':'sendrawtransaction','jsonrpc':'2.0','params':{'txdata': req.params.tx_hex}}
+      body:{'id':3,'method':'sendrawtransaction','jsonrpc':'2.0','params':{'txdata': req.params.hex}}
+    },
+    function(error, response, body) {
+      if (body.error) {
+        res.json(body.error);
+      } else {
+        res.json(body.result);     
+      }
+    });
+});
+
+app.get('/listfork', function(req, res, next) {
+  request(
+    {
+      url: url,
+      method: 'POST',
+      json: true,
+      body:{'id':3,'method':'listfork','jsonrpc':'2.0','params':{}}
     },
     function(error, response, body) {
       if (body.error) {
