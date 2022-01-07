@@ -23,7 +23,6 @@ app.use(bodyParser.json());
 
 
 app.post('/createtransaction', function(req, res, next) {
-
   const type = req.body.type;
   const time = req.body.time;
   const lockuntil = req.body.lockuntil;
@@ -33,12 +32,13 @@ app.post('/createtransaction', function(req, res, next) {
   const amount = req.body.amount;
   const txfee = req.body.txfee;
   const data = req.body.data;
-
+  console.log("createtransaction:",type,time,lockuntil,anchor,vin,sendto,amount,txfee,data);
   const ret = lib.GetTx(type,time,lockuntil,anchor,vin,sendto,amount,txfee,data);
   res.json(ret);
 });
 
 app.get('/releationByUpper/:upper', function(req, res, next) {
+  console.log("releationByUpper:",req.params.upper);
   let sql = 'select * from Relation where upper =?';
   let params = [req.params.upper];
   conn.query(sql,params,function(err,result){
@@ -52,6 +52,7 @@ app.get('/releationByUpper/:upper', function(req, res, next) {
 });
 
 app.get('/releationByLower/:lower', function(req, res, next) {
+  console.log("releationByLower:",req.params.lower);
   let sql = 'select * from Relation where lower =?';
   let params = [req.params.lower];
   conn.query(sql,params,function(err,result){
@@ -72,6 +73,7 @@ let server = app.listen(9906, function() {
 
 
 app.get('/listunspent/:fork/:addr', function(req, res, next) {
+  console.log("listunspent:",req.params.fork,req.params.addr);
   request(
     {
       url: url,
@@ -89,6 +91,7 @@ app.get('/listunspent/:fork/:addr', function(req, res, next) {
 });
 
 app.get('/sendrawtransaction/:hex', function(req, res, next) {
+  console.log("sendrawtransaction:",req.params.hex);
   request(
     {
       url: url,
@@ -106,6 +109,7 @@ app.get('/sendrawtransaction/:hex', function(req, res, next) {
 });
 
 app.get('/listfork', function(req, res, next) {
+  console.log("listfork.");
   request(
     {
       url: url,
@@ -123,12 +127,12 @@ app.get('/listfork', function(req, res, next) {
 });
 
 app.get('/transctions/:addr', function(req, res, next) {
+  console.log("transctions.",req.params.addr);
   let sql = `select t.txid, t.block_hash, t.form as \`from\`, t.\`to\`, format(t.amount,4) as amount,
   format(t.free,4) as fee,
   (case when t.form =? and left(t.\`to\`,4)<>'20w0' then 2  
         when t.\`to\` =? and left(t.form,4)<>'20w0' then 4 end) as flag,
-b.height,FROM_UNIXTIME(b.time,'%m-%d %H:%i:%s') as time,
-  (select height from Block order by height desc limit 1) - b.height + 1 as confirm
+b.height,FROM_UNIXTIME(b.time,'%m-%d %H:%i:%s') as time
 from Tx t join Block b on b.\`hash\` = t.block_hash
 where (\`to\`=? or form=?) and t.n = 0 order by t.id desc limit 10`
   let params = [req.params.addr,req.params.addr,req.params.addr,req.params.addr];
