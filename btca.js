@@ -134,7 +134,7 @@ app.get('/transctions/:addr', function(req, res, next) {
         when t.\`to\` =? and left(t.form,4)<>'20w0' then 4 end) as flag,
 b.height,FROM_UNIXTIME(b.time,'%m-%d %H:%i:%s') as time
 from Tx t join Block b on b.\`hash\` = t.block_hash
-where (\`to\`=? or form=?) and t.n = 0 order by t.id desc limit 10`
+where (\`to\`=? or form=?) order by t.id desc limit 10`
   let params = [req.params.addr,req.params.addr,req.params.addr,req.params.addr];
   conn.query(sql,params,function(err,result){
     if(err){
