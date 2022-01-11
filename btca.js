@@ -146,8 +146,8 @@ where (\`to\`=? or form=?) order by t.id desc limit 10`
   });
 });
 
-app.get('/coinNumber',function(req,res,next){
-  let sql='select max_coin_number,current_coin_numner,wallet_number,max_coin_count from coinNumber limit 1';
+app.get('/Info',function(req,res,next) {
+  let sql='select max_coin_number,current_coin_numner,wallet_number,max_coin_count from Info limit 1';
   conn.query(sql,function(err,result){
     if(err){
       res.json({'error':err});
@@ -156,4 +156,16 @@ app.get('/coinNumber',function(req,res,next){
     let dataString =JSON.stringify(result);
     res.send(JSON.parse(dataString));
   })
-})
+});
+
+app.get('/Rank',function(req,res,next) {
+  let sql='select yield,balance,ranking from Rank';
+  conn.query(sql,function(err,result) {
+    if(err){
+      res.json({'error':err});
+      return;
+    }
+    let dataString =JSON.stringify(result);
+    res.send(JSON.parse(dataString));
+  })
+});
