@@ -24,10 +24,71 @@
         <ul>
             <li>
                 <a href="../releationByUpper/1632srrskscs1d809y3x5ttf50f0gabf86xjz2s6aetc9h9ewwhm58dj3">查找上级</a>
+                <ul>
+                    <li>
+                        <a href="../releationByUpper/1632srrskscs1d809y3x5ttf50f0gabf86xjz2s6aetc9h9ewwhm58dj31">查找上级(0个下级地址）</a>
+                    </li>
+                    <li>
+                        <a href="../releationByUpper/13pw1gsnx17q9tjdv82pb7wdgbed3s2g2b5qnw0cy9jawqjz0syt06h03">查找上级(1个下级地址）</a>
+                    </li>
+                    <li>
+                        <a href="../releationByUpper/1632srrskscs1d809y3x5ttf50f0gabf86xjz2s6aetc9h9ewwhm58dj3">查找上级(多个下级地址）</a>
+                    </li>
+                  
+                </ul>
+                releationByUpper:根据上级地址获取关联函数<br/>
+                1632srrskscs1d809y3x5ttf50f0gabf86xjz2s6aetc9h9ewwhm58dj3 : 输入的上级地址（参数）<br/>
             </li>
             <li>
                 <a href="../releationByLower/2krmxc14txv3n2ykm4vh2q26mqt9a3dqgyaawj3yn1q1rb13z2hrfxzsp">查找下级</a>
+                <ul>
+                    <li>
+                        <a href="../releationByLower/2krmxc14txv3n2ykm4vh2q26mqt9a3dqgyaawj3yn1q1rb13z2hrfxzsp1">查找上级(0个下级地址）</a>
+                    </li>
+                    <li>
+                        <a href="../releationByLower/2krmxc14txv3n2ykm4vh2q26mqt9a3dqgyaawj3yn1q1rb13z2hrfxzsp">查找上级(1个下级地址）</a>
+                    </li> 
+                </ul>
+                releationByLower：根据下级弟子获取关联函数<br/>
+                2krmxc14txv3n2ykm4vh2q26mqt9a3dqgyaawj3yn1q1rb13z2hrfxzsp：输入的下级地址（参数）<br/>
             </li>
+        </ul>
+    </li>
+    <li>区块信息
+        <ul>
+            <li>
+                <a href="../BlockList/1/20/2022-01-16">获取区块信息</a><br/>
+                调用方法： BlockList/页码/每页显示条数/日期   页码为整形，条数为整形，日期年为4位整形，月为2位整形，日为2位整形<br/>
+                如：../BlockList/1/20/2022-01-16  意为获取2022年 1月 16日的，第1页的信息，每页显示20条<br/>
+                返回json数据<br/>
+                <br/>
+                {"blockTotal":842,"pageNumber":421,"blockList":[{"id":1114740,"height":28677,"reward_address":"20m02ft8tk86g2hc4r45ac1xp5emp1qwdyv60k2vx456mx434q6nkb78g","reward_money":0,"time":"2022-01-16 14:01:29","hash":"00007005bd27a1419c45e3cee907fd17de5310fd771fb5a5fb5de6978d1280d1","type":"subsidiary-dpos"},{"id":1114739,"height":28676,"reward_address":"20m02ft8tk86g2hc4r45ac1xp5emp1qwdyv60k2vx456mx434q6nkb78g","reward_money":0,"time":"2022-01-16 14:00:29","hash":"0000700448381656a1e56714df7cf5821f09f2dcbeab71081383976dae792102","type":"subsidiary-dpos"}]}<br/>
+                <br/>
+                blockTotal: 符合条件的总记录数<br/>
+                pageNumber：符合条件的总页数<br/>
+                blockList:区块信息列表<br/>
+                height:高度<br/>
+                reward_address：广播方<br/>
+                reward_money：挖矿收益<br/>
+                time：出块时间<br/>
+                hash：块哈希<br/>
+                type: 出块类型<br/>
+            </li>
+        </ul>
+    </li>
+    <li>出块统计
+        <ul>
+            <li><a href="../BlockStatistics/2022/1">出块统计</a></li><br/>
+            调用方法 BlockStatistics/年/月   年为4位整数， 月为1位或者2位整数<br/>
+            如：../BlockStatistics/2022/1  为统计2022年1月的数据<br/>
+            返回json数据<br/>
+            <br/>
+            [{"time":"2022-01-16","count":882,"money":0},{"time":"2022-01-15","count":1440,"money":0}]<br/>
+            <br/>
+            time: 日期<br/>
+            count： 出块数量<br/>
+            money： 金额统计<br/>
+
         </ul>
     </li>
     <li>基本查询

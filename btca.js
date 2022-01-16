@@ -169,3 +169,51 @@ app.get('/Rank',function(req,res,next) {
     res.send(JSON.parse(dataString));
   })
 });
+
+
+app.get('/BlockList/:page/:showNumber/:date',function(req,res,next) {
+  let startNumber=(Number(req.params.page)-1) * Number(req.params.showNumber);
+  let endNumber =startNumber  + Number(req.params.showNumber);
+  let sql ="select id,height, reward_address,reward_money, FROM_UNIXTIME(time,'%Y-%m-%d %H:%i:%s') as time,hash, type from Block   where date(FROM_UNIXTIME(time)) = ? order by id desc limit ? , ?";
+  let params =[req.params.date, startNumber , Number(req.params.showNumber)];
+  conn.query(sql,params,function(err,result) {
+    if(err){
+      res.json({'error':err});
+      return;
+    }
+    let dataString =JSON.stringify(result);
+    let blockTotal='';
+    let countSql='select count(id) as count from Block where date(FROM_UNIXTIME(time)) = ?'; 
+    let countParams=[req.params.date];
+    conn.query(countSql,countParams,function(err,totalResult){
+      if(err){
+        return "0";
+      }
+      let blockString=JSON.stringify(totalResult); 
+      let blockTotal = Number(JSON.parse(blockString)[0].count);     
+      let remainder =blockTotal % Number(req.params.showNumber);    
+      let pageNumber=Math.floor(blockTotal / Number(req.params.showNumber));
+      if (remainder >0){
+        pageNumber++;
+      }
+     console.log('blockTotal', blockTotal);
+     console.log('pageNumber', pageNumber);
+      res.send(JSON.parse('{"blockTotal":'+blockTotal+',"pageNumber":'+pageNumber+',"blockList":'+dataString+'}'));
+    })
+  })
+});
+
+app.get('/BlockStatistics/:year/:month',function(req,res,next){
+  let sql ="select  time , count(id) as count , sum(reward_money) as money from "
+            +"(select id, FROM_UNIXTIME(time,'%Y-%m-%d') as time , reward_money  from Block "
+            +"where year(FROM_UNIXTIME(time)) =? and month(FROM_UNIXTIME(time))=?) a group by time  order by time desc ";
+  let params=[req.params.year, req.params.month];
+  conn.query(sql,params,function(err,result){
+    if(err){
+      res.json({'error':err});
+      return;
+    }
+    let dataString =JSON.stringify(result);
+    res.send(JSON.parse(dataString));
+  })
+});
