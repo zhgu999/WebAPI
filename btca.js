@@ -65,7 +65,7 @@ app.get('/releationByLower/:lower', function(req, res, next) {
   });
 });
 
-let server = app.listen(9906, function() {
+let server = app.listen(7711, function() {
   let host = server.address().address;
   let port = server.address().port;
   console.log('http://%s:%s', host, port);
