@@ -3,13 +3,12 @@ const bodyParser = require('body-parser')
 const mysql = require('mysql');
 const request = require('request')
 const lib = require('./lib.js')
-
+const browser = require('./browser.js')
 const app = express();
+
 const url = 'http://127.0.0.1:9904';
-//const url = "http://159.138.123.135:9904"
 const conn = mysql.createConnection({
   host: '127.0.0.1',
-  //host: '159.138.123.135',
   port: '3306',
   user: 'btca',
   password: '1234qwer',
@@ -21,6 +20,7 @@ conn.connect();
 app.use(express.static(__dirname + '/static', {index: 'help.html'}));
 app.use(bodyParser.json());
 
+browser.Load(app,conn);
 
 app.post('/createtransaction', function(req, res, next) {
   const type = req.body.type;
@@ -64,13 +64,6 @@ app.get('/releationByLower/:lower', function(req, res, next) {
     res.send(JSON.parse(dataString));
   });
 });
-
-let server = app.listen(7711, function() {
-  let host = server.address().address;
-  let port = server.address().port;
-  console.log('http://%s:%s', host, port);
-});
-
 
 app.get('/listunspent/:fork/:addr', function(req, res, next) {
   console.log("listunspent:",req.params.fork,req.params.addr);
@@ -146,26 +139,8 @@ where (\`to\`=? or form=?) order by t.id desc limit 10`
   });
 });
 
-app.get('/Info',function(req,res,next) {
-  let sql='select max_coin_number,current_coin_numner,wallet_number,max_coin_count from Info limit 1';
-  conn.query(sql,function(err,result){
-    if(err){
-      res.json({'error':err});
-      return;
-    }
-    let dataString =JSON.stringify(result);
-    res.send(JSON.parse(dataString));
-  })
-});
-
-app.get('/Rank',function(req,res,next) {
-  let sql='select yield,balance,ranking from Rank';
-  conn.query(sql,function(err,result) {
-    if(err){
-      res.json({'error':err});
-      return;
-    }
-    let dataString =JSON.stringify(result);
-    res.send(JSON.parse(dataString));
-  })
+let server = app.listen(7711, function() {
+  let host = server.address().address;
+  let port = server.address().port;
+  console.log('http://%s:%s', host, port);
 });
