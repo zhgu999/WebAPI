@@ -101,43 +101,44 @@ app.get('/sendrawtransaction/:hex', function(req, res, next) {
     });
 });
 
-app.get('/listfork', function(req, res, next) {
-  console.log("listfork.");
-  request(
-    {
-      url: url,
-      method: 'POST',
-      json: true,
-      body:{'id':3,'method':'listfork','jsonrpc':'2.0','params':{}}
-    },
-    function(error, response, body) {
-      if (body.error) {
-        res.json(body.error);
-      } else {
-        res.json(body.result);     
-      }
-    });
+app.get('/quotations', function(req, res, next) {
+  console.log('quotations');
+  let json = [
+    {'tradePairId': 'SUG/USDT', 'price': 13.2,'precision':8, 'price24h': 11.5},
+    {'tradePairId': 'BBC/USDT', 'price': 11,'precision':8, 'price24h': 10},
+    {'tradePairId': 'BTC/USDT', 'price': 10,'precision':8, 'price24h': 10},
+    {'tradePairId': 'ETH/USDT', 'price': 9, 'precision':8,'price24h': 10},
+    {'tradePairId': 'TRX/USDT', 'price': 8, 'precision':8,'price24h': 10},
+    {'tradePairId': 'BNB/USDT', 'price': 7,'precision':8, 'price24h': 10},
+    {'tradePairId': 'XRP/USDT', 'price': 6.5,'precision':8, 'price24h': 10}
+  ];
+  res.json(json);
 });
 
-app.get('/transctions/:addr', function(req, res, next) {
-  console.log("transctions.",req.params.addr);
-  let sql = `select t.txid, t.block_hash, t.form as \`from\`, t.\`to\`, format(t.amount,4) as amount,
-  format(t.free,4) as fee,
-  (case when t.form =? and left(t.\`to\`,4)<>'20w0' then 2  
-        when t.\`to\` =? and left(t.form,4)<>'20w0' then 4 end) as flag,
-b.height,FROM_UNIXTIME(b.time,'%m-%d %H:%i:%s') as time
-from Tx t join Block b on b.\`hash\` = t.block_hash
-where (\`to\`=? or form=?) order by t.id desc limit 10`
-  let params = [req.params.addr,req.params.addr,req.params.addr,req.params.addr];
-  conn.query(sql,params,function(err,result){
-    if(err){
-      res.json({'error':err});
-      return;
+
+app.get('/banners', function(req, res, next) {
+  console.log('banners');
+  let json = [
+    {
+      'id': 1,
+      'type': 'test',
+      'title': '测试图片1',
+      'content': '正常显示350x150',
+      'img': 'http://via.placeholder.com/350x150',
+      'bgImg': 'http://via.placeholder.com/350x150'
+    },
+    {
+      'id': 2,
+      'type': 'test',
+      'title': '测试图片2',
+      'content': 'url地址错误，显示默认的sugar图片',
+      'img': 'http://via.placeholder.cn/350x150',
+      'bgImg': 'http://via.placeholder.cn/350x150'
     }
-    let dataString =JSON.stringify(result);
-    res.send(JSON.parse(dataString));
-  });
+  ];
+  res.json(json);
 });
+
 
 let server = app.listen(7711, function() {
   let host = server.address().address;
