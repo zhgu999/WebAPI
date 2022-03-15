@@ -151,7 +151,7 @@ app.get('/unspent', function(req, res, next) {
     url: url,
     method: 'POST',
     json: true,
-    body: {'id':3,'method':'listunspent','jsonrpc':'2.0','params':{'address':req.query.address}}
+    body: {'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'address':req.query.address}}
   },function (error, response, body) {
     if (body.error) {
       res.json(body.error);
@@ -172,19 +172,6 @@ app.get('/transaction', function(req, res, next) {
     res.json({'unconfirmed':'0','balance':0});
     return;
   }
-  /*
-  {
-    'hash':
-        '61c0565fc9007d4447261aaf8351eecce9ad676df2db15450d31e23c6fa983ab',
-    'fromAddress': address,
-    'toAddress':
-        '1549pyzf8dhx7r4x40k5j80f12btkpqfprjp134bcgcrjn963nzsx57xb',
-    'timestamp': 1639994975,
-    'confirmed': 180,
-    'txFee': 0.0137,
-    'amount': 10.01
-  }
-  */
   let sql = 'select txid as `hash`,form as fromAddress,`to` as toAddress,transtime as `timestamp`,1 as confirmed,free as txFee, amount from Tx where `to` = ? or form = ? order by id desc limit 10;';
   let params = [req.query.address,req.query.address];
   conn.query(sql,params,function(err,result) {
