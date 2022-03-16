@@ -2,8 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const mysql = require('mysql');
 const request = require('request')
-const browser = require('./browser.js')
+//const browser = require('./browser.js')
 const app = express();
+const utils = require('./utils.js');
 
 const url = 'http://127.0.0.1:9904';
 const bbc_conn = mysql.createConnection({
@@ -78,6 +79,70 @@ app.get('/quotations', function(req, res, next) {
   res.json(json);
 });
 
+app.post('/register', function(req, res, next) {
+  let bbc_addr = '';
+  let eth_addr = '';
+  let btc_addr = '';
+  for (let n = 0; n < req.body.params.wallet.length; n++) {
+    switch (req.body.params.wallet[n].chain) {
+      case 'BTC':
+        btc_addr = req.body.params.wallet[n].address;
+        break;
+      case 'ETH':
+        eth_addr = req.body.params.wallet[n].address;
+        break;
+      case 'BBC':
+        bbc_addr = req.body.params.wallet[n].address;
+        break;
+    }
+  }
+  let walletId = req.body.params.hash;
+  let sql = 'select * from addr where walletId = ?';
+  btca_conn.query(sql,[walletId],function(err,result){
+    if (err) {
+      console.log('register','err');
+      res.json({'error':err});
+      return;
+    }
+    if (result.length == 0) {
+      let pub = utils.Addr2Hex(bbc_addr);
+      pub = pub.subarray(1);
+      pub.reverse();
+      request({
+        url: url,
+        method: 'POST',
+        json: true,
+        body:{'id':2,'method':'importpubkey','jsonrpc':'2.0','params':{'pubkey': pub.toString('hex')}}
+      },function(error, response, body) {
+        console.log('insert into addr(walletId,bbc_addr,eth_addr,btc_addr)values(%s,%s,%s,%s)',walletId,bbc_addr,eth_addr,btc_addr);
+        sql = 'insert into addr(walletId,bbc_addr,eth_addr,btc_addr)values(?,?,?,?)';
+        btca_conn.query(sql,[walletId,bbc_addr,eth_addr,btc_addr],function(err,result) {
+          console.log('register','Add');
+          res.json({'status':'add'});
+        });
+      });
+    } else {
+      console.log('register','OK');
+      res.json({'status':'OK'});
+    }
+  });
+});
+
+
+app.get('/chart', function(req, res, next) {
+  console.log('chart',req.query.walletId);
+  let json = [
+    {'balance': '1010', 'reward': '1.8', 'user_balance': false},
+    {'balance': '2000', 'reward': '2', 'user_balance': false},
+    {'balance': '3000', 'reward': '3.2', 'user_balance': true},
+    {'balance': '4000', 'reward': '3.5', 'user_balance': false},
+    {'balance': '5000', 'reward': '3.3', 'user_balance': false},
+    {'balance': '6000', 'reward': '2.1', 'user_balance': false},
+  ];
+  res.json(json);
+});
+
+
 
 app.get('/banners', function(req, res, next) {
   console.log('banners');
@@ -147,78 +212,26 @@ app.get('/transaction', function(req, res, next) {
   });
 });
 
+
 app.get('/balance', function(req, res, next) {
   //http://127.0.0.1:7711/balance?address=1yq024eeg375yvd3kc45swqpvfz0wcrsbpz2k9escysvq68dhy9vtqe58&symbol=BBC
   //77f2b1217377f62cbb34c5b72b63c6c17fdb5e9e0b6173b4edcb19d03922c0f5
   //res.json({'address': req.query.address,'symbol': req.query.symbol});
   console.log('balance',req.query.symbol);
-  
-  let conn = bbc_conn;
   let fork = bbc_frok;
   if (req.query.symbol == 'BTCA') {
-    conn = btca_conn;
     fork = btca_frok;
   }
-  let sql = 'select * from addr where bbc_addr = ?';
-  let params = [req.query.address];
-  conn.query(sql,params,function(err,result){
-    if (err) {
-      res.json({'error':err});
-      return;
-    }
-    if (result.length == 0) {
-       request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          body:{'id':1,'method':'getpubkey','jsonrpc':'2.0','params':{'privkeyaddress': req.query.address}}
-        },
-        function(error, response, body) {
-          if (body.error) {
-            res.json(body.error);
-          } else {
-            request({
-              url: url,
-              method: 'POST',
-              json: true,
-              body:{'id':2,'method':'importpubkey','jsonrpc':'2.0','params':{'pubkey': body.result}}
-            },function(error, response, body) {
-              if (body.error) {
-                res.json(body.error);
-              } else {
-                request({
-                  url: url,
-                  method: 'POST',
-                  json: true,
-                  body: {'id':3,'method':'getbalance','jsonrpc':'2.0','params':{'address':body.result,'fork':fork}}
-                },function (error, response, body) {
-                  if (body.error) {
-                    res.json(body.error);
-                  } else {
-                    sql = 'insert into addr(bbc_addr)values(?)';
-                    conn.query(sql,[req.query.address],function(err,result){
-                      res.json({'unconfirmed':body.result[0].unconfirmed,'balance':body.result[0].avail});
-                    });
-                  }
-                });
-              }
-            });
-          }
-        });
+  request({
+    url: url,
+    method: 'POST',
+    json: true,
+    body: {'id':1,'method':'getbalance','jsonrpc':'2.0','params':{'address':req.query.address,'fork':fork}}
+  },function (error, response, body) {
+    if (body.error) {
+      res.json(body.error);
     } else {
-      request({
-        url: url,
-        method: 'POST',
-        json: true,
-        body: {'id':1,'method':'getbalance','jsonrpc':'2.0','params':{'address':req.query.address,'fork':fork}}
-      },function (error, response, body) {
-        if (body.error) {
-          res.json(body.error);
-        } else {
-          res.json({'unconfirmed':body.result[0].unconfirmed,'balance':body.result[0].avail});
-        }
-      })
+      res.json({'unconfirmed':body.result[0].unconfirmed,'balance':body.result[0].avail});
     }
   });
 });

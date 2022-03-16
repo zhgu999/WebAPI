@@ -1,4 +1,5 @@
 
+/*
 const lib = require('./lib.js');
 
 let transaction = {
@@ -34,3 +35,9 @@ if (ret.tx_hex == transaction.serialization.substring(0,ret.tx_hex.length)) {
 } else {
     console.log("err");
 }
+*/
+const utils = require('./utils.js');
+let pub = utils.Addr2Hex('1yq024eeg375yvd3kc45swqpvfz0wcrsbpz2k9escysvq68dhy9vtqe58');
+pub = pub.subarray(1);
+pub.reverse();
+console.log(pub.toString('hex'));
