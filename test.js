@@ -1,7 +1,6 @@
 
 /*
 const lib = require('./lib.js');
-
 let transaction = {
         "txid" : "61c97a03a90c1b746735e195262338f08a61ffc53b45430a36835495420a060a",
         "version" : 1,
