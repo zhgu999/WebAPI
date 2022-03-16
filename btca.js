@@ -1,10 +1,11 @@
 const express = require('express');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 const mysql = require('mysql');
-const request = require('request')
+const request = require('request');
 //const browser = require('./browser.js')
 const app = express();
 const utils = require('./utils.js');
+const { json } = require('express');
 
 const url = 'http://127.0.0.1:9904';
 const bbc_conn = mysql.createConnection({
@@ -42,7 +43,7 @@ app.get('/invite_lists/:addr', function(req, res, next) {
       res.json({'error':err});
       return;
     }
-    let dataString =JSON.stringify(result);
+    let dataString = JSON.stringify(result);
     res.send(JSON.parse(dataString));
   });
 });
@@ -114,7 +115,6 @@ app.post('/register', function(req, res, next) {
         json: true,
         body:{'id':2,'method':'importpubkey','jsonrpc':'2.0','params':{'pubkey': pub.toString('hex')}}
       },function(error, response, body) {
-        console.log('insert into addr(walletId,bbc_addr,eth_addr,btc_addr)values(%s,%s,%s,%s)',walletId,bbc_addr,eth_addr,btc_addr);
         sql = 'insert into addr(walletId,bbc_addr,eth_addr,btc_addr)values(?,?,?,?)';
         btca_conn.query(sql,[walletId,bbc_addr,eth_addr,btc_addr],function(err,result) {
           console.log('register','Add');
@@ -127,7 +127,6 @@ app.post('/register', function(req, res, next) {
     }
   });
 });
-
 
 app.get('/chart', function(req, res, next) {
   console.log('chart',req.query.walletId);
@@ -142,7 +141,101 @@ app.get('/chart', function(req, res, next) {
   res.json(json);
 });
 
+// 查找关于这个钱包的收益信息
+app.get('/mint', function(req, res, next) {
+  console.log('mint',req.query.walletId);
+  let json = {
+    'promotion_reward': '20',
+    'stake_reward': '30',
+    'this_stake_reward': '1000',
+    'this_balance': '200',
+    'min_balance': '100',
+    'best_balance': '150',
+    'best_balance_reward': '15',
+    'min_balance_reward': '1'
+  };
+  res.send(json);
+});
 
+// 收益列表
+app.get('/profit', function(req, res, next) {
+  console.log('profit',req.query.walletId);
+  let json = [
+    {
+      'height': 100,
+      'balance': '10',
+      'stake_reward': '5',
+      'promotion_reward': '5'
+    },
+    {
+      'height': 200,
+      'balance': '20',
+      'stake_reward': '5',
+      'promotion_reward': '5'
+    },
+    {
+      'height': 300,
+      'balance': '30',
+      'stake_reward': '5',
+      'promotion_reward': '5'
+    }
+  ];
+
+  res.send(json);
+  return;
+  let sql = 'select height,balance,stake_reward,promotion_reward from profit where walletId = ?';
+  btca_conn.query(sql,[req.query.walletId],function(err,result){
+    if(err) {
+      res.json({'error':err});
+      return;
+    }
+    let dataString = JSON.stringify(result);
+    res.send(JSON.parse(dataString));
+  });
+  /*
+  [
+      {
+        'height': 100,
+        'balance': '10',
+        'stake_reward': '5',
+        'promotion_reward': '5'
+      },
+      {
+        'height': 200,
+        'balance': '20',
+        'stake_reward': '5',
+        'promotion_reward': '5'
+      },
+      {
+        'height': 300,
+        'balance': '30',
+        'stake_reward': '5',
+        'promotion_reward': '5'
+      }
+    ]
+  */
+});
+
+// 邀请人
+app.get('/invitation', function(req, res, next) {
+  console.log('invitation',req.query.walletId);
+  let sql = 'select Relation.lower as _id,"100" as achievement from Relation inner join addr on addr.bbc_addr = Relation.upper where addr.walletId = ?';
+  btca_conn.query(sql,[req.query.walletId],function(err,result){
+    if(err) {
+      res.json({'error':err});
+      return;
+    }
+    let dataString = JSON.stringify(result);
+    res.send(JSON.parse(dataString));
+  });
+  /*
+  [
+    {'_id': '12345678901234567890', 'achievement': '100'},
+    {'_id': '12345678902234567890', 'achievement': '200'},
+    {'_id': '11112345678902234567890', 'achievement': '300'}
+  ]
+  */
+});
 
 app.get('/banners', function(req, res, next) {
   console.log('banners');
@@ -207,7 +300,7 @@ app.get('/transaction', function(req, res, next) {
       res.json({'error':err});
       return;
     }
-    let dataString =JSON.stringify(result);
+    let dataString = JSON.stringify(result);
     res.send(JSON.parse(dataString));
   });
 });
