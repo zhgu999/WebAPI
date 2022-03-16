@@ -2,12 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const mysql = require('mysql');
 const request = require('request')
-const lib = require('./lib.js')
 const browser = require('./browser.js')
 const app = express();
 
 const url = 'http://127.0.0.1:9904';
-const conn = mysql.createConnection({
+const bbc_conn = mysql.createConnection({
+  host: '127.0.0.1',
+  port: '3306',
+  user: 'bbc',
+  password: '1234qwer',
+  database: 'bbc'
+});
+
+bbc_conn.connect();
+
+const btca_conn = mysql.createConnection({
   host: '127.0.0.1',
   port: '3306',
   user: 'btca',
@@ -15,37 +24,19 @@ const conn = mysql.createConnection({
   database: 'btca'
 });
 
-conn.connect();
+btca_conn.connect();
 
 app.use(express.static(__dirname + '/static', {index: 'help.html'}));
 app.use(bodyParser.json());
-
-browser.Load(app,conn);
-
+//browser.Load(app,conn);
 const bbc_frok = '00000000a137256624bda82aec19645b1dd8d41311ceac9b5c3e49d2822cd49f';
 const btca_frok = '0000000190e31a56bea3d263cc271649bf72ef1bf5ca8aa7e271ba9dd754f2da';
-
-
-app.post('/createtransaction', function(req, res, next) {
-  const type = req.body.type;
-  const time = req.body.time;
-  const lockuntil = req.body.lockuntil;
-  const anchor = req.body.anchor;
-  const vin = req.body.vin;
-  const sendto = req.body.sendto;
-  const amount = req.body.amount;
-  const txfee = req.body.txfee;
-  const data = req.body.data;
-  console.log("createtransaction:",type,time,lockuntil,anchor,vin,sendto,amount,txfee,data);
-  const ret = lib.GetTx(type,time,lockuntil,anchor,vin,sendto,amount,txfee,data);
-  res.json(ret);
-});
 
 app.get('/invite_lists/:addr', function(req, res, next) {
   console.log("invite_lists:",req.params.addr);
   let sql = 'select lower as `current`, created_at from Relation where upper = ?';
   let params = [req.params.addr];
-  conn.query(sql,params,function(err,result){
+  btca_conn.query(sql,params,function(err,result){
     if(err) {
       res.json({'error':err});
       return;
@@ -53,25 +44,6 @@ app.get('/invite_lists/:addr', function(req, res, next) {
     let dataString =JSON.stringify(result);
     res.send(JSON.parse(dataString));
   });
-});
-
-
-app.get('/listunspent/:fork/:addr', function(req, res, next) {
-  console.log("listunspent:",req.params.fork,req.params.addr);
-  request(
-    {
-      url: url,
-      method: 'POST',
-      json: true,
-      body:{'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'fork':req.params.fork,'address': req.params.addr,'max':0 }}
-    },
-    function(error, response, body) {
-      if (body.error) {
-        res.json(body.error);
-      } else {
-        res.json(body.result);    
-      }
-    });
 });
 
 app.get('/sendrawtransaction/:hex', function(req, res, next) {
@@ -95,7 +67,7 @@ app.get('/sendrawtransaction/:hex', function(req, res, next) {
 app.get('/quotations', function(req, res, next) {
   console.log('quotations');
   let json = [
-    {'tradePairId': 'SUG/USDT', 'price': 13.2,'precision':8, 'price24h': 11.5},
+    {'tradePairId': 'BTCA/USDT', 'price': 13.2,'precision':8, 'price24h': 11.5},
     {'tradePairId': 'BBC/USDT', 'price': 11,'precision':8, 'price24h': 10},
     {'tradePairId': 'BTC/USDT', 'price': 10,'precision':8, 'price24h': 10},
     {'tradePairId': 'ETH/USDT', 'price': 9, 'precision':8,'price24h': 10},
@@ -158,12 +130,12 @@ app.get('/unspent', function(req, res, next) {
 
 app.get('/transaction', function(req, res, next) {
   //http://127.0.0.1:7711/transaction?address=1yq024eeg375yvd3kc45swqpvfz0wcrsbpz2k9escysvq68dhy9vtqe58&symbol=BBC
-  console.log('transaction');
-  if (req.query.symbol != 'BBC') {
-    res.json({'unconfirmed':'0','balance':0});
-    return;
+  console.log('transaction',req.query.symbol);
+  let conn = bbc_conn;
+  if (req.query.symbol == 'BTCA') {
+      conn = btca_conn;
   }
-  let sql = 'select txid as `hash`,form as fromAddress,`to` as toAddress,transtime as `timestamp`,1 as confirmed,free as txFee, amount from Tx where `to` = ? or form = ? order by id desc limit 10;';
+  let sql = 'select txid as `hash`,form as fromAddress,`to` as toAddress,transtime as `timestamp`,1 as confirmed,free as txFee, amount from Tx where (`to` = ? and n = 0) or (form = ? and n = 0) order by id desc limit 10;';
   let params = [req.query.address,req.query.address];
   conn.query(sql,params,function(err,result) {
     if(err){
@@ -180,12 +152,11 @@ app.get('/balance', function(req, res, next) {
   //77f2b1217377f62cbb34c5b72b63c6c17fdb5e9e0b6173b4edcb19d03922c0f5
   //res.json({'address': req.query.address,'symbol': req.query.symbol});
   console.log('balance',req.query.symbol);
-  //if (req.query.symbol != 'BBC') {
-  //  res.json({'unconfirmed':'0','balance':0});
-  //  return;
-  //}
+  
+  let conn = bbc_conn;
   let fork = bbc_frok;
   if (req.query.symbol == 'BTCA') {
+    conn = btca_conn;
     fork = btca_frok;
   }
   let sql = 'select * from addr where bbc_addr = ?';
