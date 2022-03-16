@@ -10,9 +10,9 @@ const url = 'http://127.0.0.1:9904';
 const conn = mysql.createConnection({
   host: '127.0.0.1',
   port: '3306',
-  user: 'bbc',
+  user: 'btca',
   password: '1234qwer',
-  database: 'bbc'
+  database: 'btca'
 });
 
 conn.connect();
@@ -21,6 +21,10 @@ app.use(express.static(__dirname + '/static', {index: 'help.html'}));
 app.use(bodyParser.json());
 
 browser.Load(app,conn);
+
+const bbc_frok = '00000000a137256624bda82aec19645b1dd8d41311ceac9b5c3e49d2822cd49f';
+const btca_frok = '0000000190e31a56bea3d263cc271649bf72ef1bf5ca8aa7e271ba9dd754f2da';
+
 
 app.post('/createtransaction', function(req, res, next) {
   const type = req.body.type;
@@ -37,12 +41,12 @@ app.post('/createtransaction', function(req, res, next) {
   res.json(ret);
 });
 
-app.get('/releationByUpper/:upper', function(req, res, next) {
-  console.log("releationByUpper:",req.params.upper);
-  let sql = 'select * from Relation where upper =?';
-  let params = [req.params.upper];
+app.get('/invite_lists/:addr', function(req, res, next) {
+  console.log("invite_lists:",req.params.addr);
+  let sql = 'select lower as `current`, created_at from Relation where upper = ?';
+  let params = [req.params.addr];
   conn.query(sql,params,function(err,result){
-    if(err){
+    if(err) {
       res.json({'error':err});
       return;
     }
@@ -51,19 +55,6 @@ app.get('/releationByUpper/:upper', function(req, res, next) {
   });
 });
 
-app.get('/releationByLower/:lower', function(req, res, next) {
-  console.log("releationByLower:",req.params.lower);
-  let sql = 'select * from Relation where lower =?';
-  let params = [req.params.lower];
-  conn.query(sql,params,function(err,result){
-    if(err){
-      res.json({'error':err});
-      return;
-    }
-    let dataString =JSON.stringify(result);
-    res.send(JSON.parse(dataString));
-  });
-});
 
 app.get('/listunspent/:fork/:addr', function(req, res, next) {
   console.log("listunspent:",req.params.fork,req.params.addr);
@@ -140,18 +131,18 @@ app.get('/banners', function(req, res, next) {
 });
 
 
-//http://127.0.0.1:7711/unspent?address=1yq024eeg375yvd3kc45swqpvfz0wcrsbpz2k9escysvq68dhy9vtqe58&symbol=BBC
+//http://127.0.0.1:7711/unspent?address=1yq024eeg375yvd3kc45swqpvfz0wcrsbpz2k9escysvq68dhy9vtqe58&symbol=BTCA
 app.get('/unspent', function(req, res, next) {
-  console.log('unspent');
-  if (req.query.symbol != 'BBC') {
-    res.json([]);
-    return;
+  console.log('unspent',req.query.symbol);
+  let fork = bbc_frok;
+  if (req.query.symbol == 'BTCA') {
+    fork = btca_frok;
   }
   request({
     url: url,
     method: 'POST',
     json: true,
-    body: {'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'address':req.query.address}}
+    body: {'id':1,'method':'listunspent','jsonrpc':'2.0','params':{'address':req.query.address,'fork':fork}}
   },function (error, response, body) {
     if (body.error) {
       res.json(body.error);
@@ -188,10 +179,14 @@ app.get('/balance', function(req, res, next) {
   //http://127.0.0.1:7711/balance?address=1yq024eeg375yvd3kc45swqpvfz0wcrsbpz2k9escysvq68dhy9vtqe58&symbol=BBC
   //77f2b1217377f62cbb34c5b72b63c6c17fdb5e9e0b6173b4edcb19d03922c0f5
   //res.json({'address': req.query.address,'symbol': req.query.symbol});
-  console.log('balance');
-  if (req.query.symbol != 'BBC') {
-    res.json({'unconfirmed':'0','balance':0});
-    return;
+  console.log('balance',req.query.symbol);
+  //if (req.query.symbol != 'BBC') {
+  //  res.json({'unconfirmed':'0','balance':0});
+  //  return;
+  //}
+  let fork = bbc_frok;
+  if (req.query.symbol == 'BTCA') {
+    fork = btca_frok;
   }
   let sql = 'select * from addr where bbc_addr = ?';
   let params = [req.query.address];
@@ -225,7 +220,7 @@ app.get('/balance', function(req, res, next) {
                   url: url,
                   method: 'POST',
                   json: true,
-                  body: {'id':3,'method':'getbalance','jsonrpc':'2.0','params':{'address':body.result}}
+                  body: {'id':3,'method':'getbalance','jsonrpc':'2.0','params':{'address':body.result,'fork':fork}}
                 },function (error, response, body) {
                   if (body.error) {
                     res.json(body.error);
@@ -245,7 +240,7 @@ app.get('/balance', function(req, res, next) {
         url: url,
         method: 'POST',
         json: true,
-        body: {'id':1,'method':'getbalance','jsonrpc':'2.0','params':{'address':req.query.address}}
+        body: {'id':1,'method':'getbalance','jsonrpc':'2.0','params':{'address':req.query.address,'fork':fork}}
       },function (error, response, body) {
         if (body.error) {
           res.json(body.error);
