@@ -130,35 +130,46 @@ app.post('/register', function(req, res, next) {
 
 app.get('/chart', function(req, res, next) {
   console.log('chart',req.query.walletId);
-  let json = [
-    {'balance': '1010', 'reward': '1.8', 'user_balance': false},
-    {'balance': '2000', 'reward': '2', 'user_balance': false},
-    {'balance': '3000', 'reward': '3.2', 'user_balance': true},
-    {'balance': '4000', 'reward': '3.5', 'user_balance': false},
-    {'balance': '5000', 'reward': '3.3', 'user_balance': false},
-    {'balance': '6000', 'reward': '2.1', 'user_balance': false},
-  ];
-  res.json(json);
+  let sql = 'call chart_info(?)';
+  btca_conn.query(sql,[req.query.walletId],function(err,result){
+    if(err) {
+      res.json({'error':err});
+      return;
+    } else {
+      let dataString = JSON.stringify(result[0]);
+      let objlist = JSON.parse(dataString)
+      objlist.forEach(element => {
+        if (element.user_balance == 1) {
+          element.user_balance = true;
+        } else {
+          element.user_balance = false;
+        }
+      });
+      res.send(objlist);
+    }
+  });
 });
 
 // 查找关于这个钱包的收益信息
+//http://127.0.0.1:7711/mint?walletId=a3533811f9c9ffa3208fa15e15ea1c72e2793c5e4eeda3a95d
 app.get('/mint', function(req, res, next) {
   console.log('mint',req.query.walletId);
-  let json = {
-    'promotion_reward': '20',
-    'stake_reward': '30',
-    'this_stake_reward': '1000',
-    'this_balance': '200',
-    'min_balance': '100',
-    'best_balance': '150',
-    'best_balance_reward': '15',
-    'min_balance_reward': '1'
-  };
-  res.send(json);
+  let sql = 'call mint_info(?)';
+  btca_conn.query(sql,[req.query.walletId],function(err,result){
+    if(err) {
+      res.json({'error':err});
+      return;
+    }
+    if (result[0].length == 1) {
+      let dataString = JSON.stringify(result[0][0]);
+      res.send(JSON.parse(dataString));
+    } else {
+      res.send({});
+    }
+  });
 });
 
 // 收益列表
-
 //http://127.0.0.1:7711/profit?walletId=a3533811f9c9ffa3208fa15e15ea1c72e2793c5e4eeda3a95d
 app.get('/profit', function(req, res, next) {
   console.log('profit',req.query.walletId);
@@ -190,13 +201,6 @@ app.get('/invitation', function(req, res, next) {
     let dataString = JSON.stringify(result);
     res.send(JSON.parse(dataString));
   });
-  /*
-  [
-    {'_id': '12345678901234567890', 'achievement': '100'},
-    {'_id': '12345678902234567890', 'achievement': '200'},
-    {'_id': '11112345678902234567890', 'achievement': '300'}
-  ]
-  */
 });
 
 app.get('/banners', function(req, res, next) {
