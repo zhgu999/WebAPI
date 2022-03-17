@@ -66,18 +66,19 @@ app.get('/sendrawtransaction/:hex', function(req, res, next) {
     });
 });
 
+// http://127.0.0.1:7711/quotations
 app.get('/quotations', function(req, res, next) {
   console.log('quotations');
-  let json = [
-    {'tradePairId': 'BTCA/USDT', 'price': 13.2,'precision':8, 'price24h': 11.5},
-    {'tradePairId': 'BBC/USDT', 'price': 11,'precision':8, 'price24h': 10},
-    {'tradePairId': 'BTC/USDT', 'price': 10,'precision':8, 'price24h': 10},
-    {'tradePairId': 'ETH/USDT', 'price': 9, 'precision':8,'price24h': 10},
-    {'tradePairId': 'TRX/USDT', 'price': 8, 'precision':8,'price24h': 10},
-    {'tradePairId': 'BNB/USDT', 'price': 7,'precision':8, 'price24h': 10},
-    {'tradePairId': 'XRP/USDT', 'price': 6.5,'precision':8, 'price24h': 10}
-  ];
-  res.json(json);
+  let sql = 'SELECT tradePairId,price,`precision`,price24h FROM quotations';
+  btca_conn.query(sql,[req.query.walletId],function(err,result){
+    if(err) {
+      res.json({'error':err});
+      return;
+    } else {
+      let dataString = JSON.stringify(result);
+      res.send(JSON.parse(dataString));
+    }
+  });
 });
 
 app.post('/register', function(req, res, next) {
@@ -205,25 +206,16 @@ app.get('/invitation', function(req, res, next) {
 
 app.get('/banners', function(req, res, next) {
   console.log('banners');
-  let json = [
-    {
-      'id': 1,
-      'type': 'test',
-      'title': '测试图片1',
-      'content': '正常显示350x150',
-      'img': 'http://via.placeholder.com/350x150',
-      'bgImg': 'http://via.placeholder.com/350x150'
-    },
-    {
-      'id': 2,
-      'type': 'test',
-      'title': '测试图片2',
-      'content': 'url地址错误，显示默认的sugar图片',
-      'img': 'http://via.placeholder.cn/350x150',
-      'bgImg': 'http://via.placeholder.cn/350x150'
+  let sql = 'SELECT * FROM banners';
+  btca_conn.query(sql,[req.query.walletId],function(err,result){
+    if(err) {
+      res.json({'error':err});
+      return;
+    } else {
+      let dataString = JSON.stringify(result);
+      res.send(JSON.parse(dataString));
     }
-  ];
-  res.json(json);
+  });
 });
 
 
