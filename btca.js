@@ -158,32 +158,15 @@ app.get('/mint', function(req, res, next) {
 });
 
 // 收益列表
+
+//http://127.0.0.1:7711/profit?walletId=a3533811f9c9ffa3208fa15e15ea1c72e2793c5e4eeda3a95d
 app.get('/profit', function(req, res, next) {
   console.log('profit',req.query.walletId);
-  let json = [
-    {
-      'height': 100,
-      'balance': '10',
-      'stake_reward': '5',
-      'promotion_reward': '5'
-    },
-    {
-      'height': 200,
-      'balance': '20',
-      'stake_reward': '5',
-      'promotion_reward': '5'
-    },
-    {
-      'height': 300,
-      'balance': '30',
-      'stake_reward': '5',
-      'promotion_reward': '5'
-    }
-  ];
-
-  res.send(json);
-  return;
-  let sql = 'select height,balance,stake_reward,promotion_reward from profit where walletId = ?';
+  let sql = 'select reward.height,cast((reward.amount / 1000000) as char) as balance,\
+            cast((reward.stake_reward / 1000000) as char) as stake_reward,\
+            cast((reward.promotion_reward / 1000000) as char) as promotion_reward \
+            from reward inner join addr on addr.bbc_addr = reward.address \
+            where addr.walletId = ? order by reward.id desc limit 10';
   btca_conn.query(sql,[req.query.walletId],function(err,result){
     if(err) {
       res.json({'error':err});
@@ -192,34 +175,13 @@ app.get('/profit', function(req, res, next) {
     let dataString = JSON.stringify(result);
     res.send(JSON.parse(dataString));
   });
-  /*
-  [
-      {
-        'height': 100,
-        'balance': '10',
-        'stake_reward': '5',
-        'promotion_reward': '5'
-      },
-      {
-        'height': 200,
-        'balance': '20',
-        'stake_reward': '5',
-        'promotion_reward': '5'
-      },
-      {
-        'height': 300,
-        'balance': '30',
-        'stake_reward': '5',
-        'promotion_reward': '5'
-      }
-    ]
-  */
 });
 
 // 邀请人
 app.get('/invitation', function(req, res, next) {
   console.log('invitation',req.query.walletId);
-  let sql = 'select Relation.lower as _id,"100" as achievement from Relation inner join addr on addr.bbc_addr = Relation.upper where addr.walletId = ?';
+  let sql = 'select Relation.lower as _id,cast(achievement as char) as achievement \
+            from Relation inner join addr on addr.bbc_addr = Relation.upper where addr.walletId = ?';
   btca_conn.query(sql,[req.query.walletId],function(err,result){
     if(err) {
       res.json({'error':err});
