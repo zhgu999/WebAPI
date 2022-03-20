@@ -34,6 +34,34 @@ app.use(bodyParser.json());
 const bbc_frok = '00000000a137256624bda82aec19645b1dd8d41311ceac9b5c3e49d2822cd49f';
 const btca_frok = '0000000190e31a56bea3d263cc271649bf72ef1bf5ca8aa7e271ba9dd754f2da';
 
+function query(sql,params) {
+  return new Promise(fun => {
+    btca_conn.query(sql,params,function(err,result) {
+      if (err) {
+        return;
+      }
+      fun(result);
+    });
+  });
+};
+
+function bbc_method(method,params) {
+  return new Promise(fun => {
+    request({
+        url: url,
+        method: 'POST',
+        json: true,
+        body:{'id':1,'method':method,'jsonrpc':'2.0','params':params}},
+      function(error, response, body) {
+        if (body.error) {
+          return;
+        } else {
+          fun(body.result);
+        }
+      });
+  });  
+}
+
 app.get('/invite_lists/:addr', function(req, res, next) {
   console.log("invite_lists:",req.params.addr);
   let sql = 'select lower as `current`, created_at from Relation where upper = ?';
@@ -67,18 +95,12 @@ app.get('/sendrawtransaction/:hex', function(req, res, next) {
 });
 
 // http://127.0.0.1:7711/quotations
-app.get('/quotations', function(req, res, next) {
+app.get('/quotations', async function(req, res, next) {
   console.log('quotations');
   let sql = 'SELECT tradePairId,price,`precision`,price24h FROM quotations';
-  btca_conn.query(sql,[req.query.walletId],function(err,result){
-    if(err) {
-      res.json({'error':err});
-      return;
-    } else {
-      let dataString = JSON.stringify(result);
-      res.send(JSON.parse(dataString));
-    }
-  });
+  let ret = await query(sql,[req.query.walletId]);
+  let dataString = JSON.stringify(ret);
+  res.send(JSON.parse(dataString));
 });
 
 app.post('/register', function(req, res, next) {
